@@ -26,6 +26,8 @@ instruments = pd.read_csv('test_optimum.txt')
 instruments_list = instruments['PAIR'].to_list()
 
 method_number = 0
+loss = 0
+
 print(instruments_list)
 # for methods in methods_list:
 #     method_number += 1
@@ -46,7 +48,7 @@ for instrument in instruments_list:
     results_list = results[instrument].to_list()
     
     clear = 'yes'
-    loss = 0
+    
     previous_result = 'None'
     counter = 0
     stage = 0
@@ -71,16 +73,16 @@ for instrument in instruments_list:
         clear_dict[methods] = 0
     
     for result in results_list:
+        
         for methods in methods_list:
             
-            i += 1
-            index += 1
+           
             if stage_dict[methods] == 5:
                 stage_dict[methods] = 0
             
             if counter_dict[methods] >= 5:
                 loss_dict[methods] += 1
-                counter = 0
+                counter_dict[methods] = 0
             
           
 
@@ -133,19 +135,19 @@ for instrument in instruments_list:
     
 
         #here we place the actual method that is being used and test that one for the final output
-        i += 1
-        index += 1
+        
+        
         if stage == 5:
             stage = 0
         
-        if counter >= 5:
+        if counter > 5:
             loss += 1
             counter = 0
         
             clear = 'no'
 
             # deciding on which method to go with
-            ult_method = max(loss_dict.iteritems(), key=operator.itemgetter(1))[0]
+            ult_method = max(loss_dict.items(), key=operator.itemgetter(1))[0]
 
         
         if result == 'W':
@@ -205,7 +207,7 @@ except:
     lowest_loss = loss
     best_combo = mystring
     
-
+print(loss)
 
 
 
