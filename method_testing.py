@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from util import column_sum
 import itertools
+import operator
 
 rn = [1,2,3,4,5,6,7,8,9,10]
 methods_list = list(itertools.combinations(rn,5))
@@ -54,6 +55,9 @@ for instrument in instruments_list:
     days = []
     pair = []
     pair = []
+
+    #starting with a random ult_method
+    ult_method = (2,4,6,8,10)
 
     #tracing dicts
     counter_dict = {}
@@ -127,6 +131,62 @@ for instrument in instruments_list:
                             stage_dict[methods] +=1
         
     
+
+        #here we place the actual method that is being used and test that one for the final output
+        i += 1
+        index += 1
+        if stage == 5:
+            stage = 0
+        
+        if counter >= 5:
+            loss += 1
+            counter = 0
+        
+            clear = 'no'
+
+            # deciding on which method to go with
+            ult_method = max(loss_dict.iteritems(), key=operator.itemgetter(1))[0]
+
+        
+        if result == 'W':
+            if ult_method[stage] % 2 == 1:
+                clear = 'yes'
+        if result == 'L':
+            if ult_method[stage] % 2 == 0:
+                clear = 'yes'
+
+        if clear == 'yes':
+        # testing going with trend occurence
+            if ult_method[stage] % 2 == 1:
+                if result == 'W':
+                    counter = 0
+                if result == 'L':
+                    counter += 1
+                    stage += 1
+                if result == 'D':
+                    if counter == 0:
+                        counter += 1
+                        stage += 1
+                    elif counter < 2.5:
+                        counter += 0.25
+                        stage +=1
+                    
+                
+            # testing going against trend occurence
+            else:
+                if result == 'W':
+                    counter += 1
+                    stage += 1
+                if result == 'L':
+                    counter = 0
+                if result == 'D':
+                    if counter == 0:
+                        counter += 1
+                        stage += 1
+                    elif counter < 2.5:
+                        counter += 0.25
+                        stage +=1
+
     # df = pd.DataFrame({'Dates': days, instrument : pair})
     # df[instrument] = 1 
     # print(df.head())
