@@ -26,115 +26,130 @@ instruments_list = instruments['PAIR'].to_list()
 
 method_number = 0
 print(instruments_list)
-for methods in methods_list:
-    method_number += 1
-    loss = 0
-    clear = 'yes'
+# for methods in methods_list:
+#     method_number += 1
+#     loss = 0
+#     clear = 'yes'
 
-    try:
-        del dates_ml
-    except:
-        pass
+#     try:
+#         del dates_ml
+#     except:
+#         pass
 
-    dates_ml = pd.read_csv('Date_ML.csv')
+#     dates_ml = pd.read_csv('Date_ML.csv')
+
+for instrument in instruments_list:
+    day = []
+    i = 0
+
+    results_list = results[instrument].to_list()
     
-    for instrument in instruments_list:
-        day = []
-        i = 0
+    clear = 'yes'
+    loss = 0
+    previous_result = 'None'
+    counter = 0
+    stage = 0
+    
+    index = 0
+    days = []
+    pair = []
+    pair = []
 
-        results_list = results[instrument].to_list()
-        
-        previous_result = 'None'
-        counter = 0
-        stage = 0
-        
-        index = 0
-        days = []
-        pair = []
-        pair = []
-
-        for result in results_list:
+    #tracing dicts
+    counter_dict = {}
+    loss_dict ={}
+    stage_dict = {}
+    clear_dict = {}
+    for methods in methods_list:
+        loss_dict[methods] = 0
+        counter_dict[methods] = 0
+        stage_dict[methods] = 0
+        clear_dict[methods] = 0
+    
+    for result in results_list:
+        for methods in methods_list:
+            
             i += 1
             index += 1
-            if stage == 5:
-                stage = 0
+            if stage_dict[methods] == 5:
+                stage_dict[methods] = 0
             
-            if counter >= 5:
-                loss += 1
+            if counter_dict[methods] >= 5:
+                loss_dict[methods] += 1
                 counter = 0
             
-                days.append(results['Dates'].str[:10].iloc[i])
-                pair.append(instrument)
-                clear = 'no'
+          
+
+                try:
+                    loss_dict[methods] += 1
+                except:
+                    loss_dict[methods] = 1
+                clear_dict[methods] = 'no'
 
             
             if result == 'W':
-                if methods[stage] % 2 == 1:
-                    clear = 'yes'
+                if methods[stage_dict[methods]] % 2 == 1:
+                    clear_dict[methods] = 'yes'
             if result == 'L':
-                if methods[stage] % 2 == 0:
-                    clear = 'yes'
+                if methods[stage_dict[methods]] % 2 == 0:
+                    clear_dict[methods] = 'yes'
 
-            if clear == 'yes':
+            if clear_dict[methods] == 'yes':
             # testing going with trend occurence
-                if methods[stage] % 2 == 1:
+                if methods[stage_dict[methods]] % 2 == 1:
                     if result == 'W':
-                        counter = 0
+                        counter_dict[methods] = 0
                     if result == 'L':
-                        counter += 1
-                        stage += 1
+                        counter_dict[methods] += 1
+                        stage_dict[methods] += 1
                     if result == 'D':
-                        if counter == 0:
-                            counter += 1
-                            stage += 1
-                        elif counter < 2.5:
-                            counter += 0.25
-                            stage +=1
+                        if counter_dict[methods] == 0:
+                            counter_dict[methods] += 1
+                            stage_dict[methods] += 1
+                        elif counter_dict[methods] < 2.5:
+                            counter_dict[methods] += 0.25
+                            stage_dict[methods] +=1
                         
                     
                 # testing going against trend occurence
                 else:
                     if result == 'W':
-                        counter += 1
-                        stage += 1
+                        counter_dict[methods] += 1
+                        stage_dict[methods] += 1
                     if result == 'L':
-                        counter = 0
+                        counter_dict[methods] = 0
                     if result == 'D':
-                        if counter == 0:
-                            counter += 1
-                            stage += 1
-                        elif counter < 2.5:
-                            counter += 0.25
-                            stage +=1
+                        if counter_dict[methods] == 0:
+                            counter_dict[methods] += 1
+                            stage_dict[methods] += 1
+                        elif counter_dict[methods] < 2.5:
+                            counter_dict[methods] += 0.25
+                            stage_dict[methods] +=1
         
-        
-        df = pd.DataFrame({'Dates': days, instrument : pair})
-        df[instrument] = 1 
-        print(df.head())
+    
+    # df = pd.DataFrame({'Dates': days, instrument : pair})
+    # df[instrument] = 1 
+    # print(df.head())
 
-        dates_ml = pd.merge(dates_ml,df[['Dates',instrument]], on = 'Dates', how = 'left')
+    # dates_ml = pd.merge(dates_ml,df[['Dates',instrument]], on = 'Dates', how = 'left')
 
-    mystring = " ".join(map(str,methods))
+mystring = " ".join(map(str,methods))
 
 
-   
-    try:
-        if loss < lowest_loss:
-            lowest_loss = loss
-            best_combo = mystring
-    except:
+
+try:
+    if loss < lowest_loss:
         lowest_loss = loss
         best_combo = mystring
-        
-        print(days)
-
-
-    print(dates_ml.head())
-                
-    print(methods)
-    print(loss)
+except:
+    lowest_loss = loss
+    best_combo = mystring
     
-    dates_ml.to_csv('Results/method_losses' + str(methods) + '.csv')
+
+
+
+
+# dates_ml.to_csv('Results/method_losses' + str(methods) + '.csv')
 
 
 
