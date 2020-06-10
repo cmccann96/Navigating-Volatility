@@ -36,10 +36,10 @@ print(instruments_list)
 #     loss = 0
 #     clear = 'yes'
 
-try:
-    del dates_ml
-except:
-    pass
+# try:
+#     del dates_ml
+# except:
+#     pass
 
 dates_ml = pd.read_csv('Date_ML.csv')
 
@@ -75,6 +75,7 @@ for instrument in instruments_list:
         clear_dict[methods] = 0
     
     for result in results_list:
+        i +=1
         
         for methods in methods_list:
             
@@ -151,6 +152,7 @@ for instrument in instruments_list:
             # deciding on which method to go with
             
             ult_method = max(loss_dict.items(), key=operator.itemgetter(1))[0]
+            print(ult_method)
             
 
         
@@ -198,6 +200,7 @@ for instrument in instruments_list:
     print(df.head())
 
     dates_ml = pd.merge(dates_ml,df[['Dates',instrument]], on = 'Dates', how = 'left')
+    print(loss)
 
 mystring = " ".join(map(str,methods))
 
@@ -211,7 +214,7 @@ except:
     lowest_loss = loss
     best_combo = mystring
     
-print(loss)
+
 
 
 
