@@ -10,6 +10,8 @@ methods_list = list(itertools.combinations(rn,5))
 
 methods_list = [(1,2,3,4,6),(2,4,6,8,10),(1,3,5,7,9),(1,2,5,7,9),(2,4,5,6,10)]
 
+# methods_list = [(2,4,6,8,10)]
+
 import csv
 
 with open('methods.csv', 'w') as myfile:
@@ -34,12 +36,12 @@ print(instruments_list)
 #     loss = 0
 #     clear = 'yes'
 
-#     try:
-#         del dates_ml
-#     except:
-#         pass
+try:
+    del dates_ml
+except:
+    pass
 
-#     dates_ml = pd.read_csv('Date_ML.csv')
+dates_ml = pd.read_csv('Date_ML.csv')
 
 for instrument in instruments_list:
     day = []
@@ -140,14 +142,16 @@ for instrument in instruments_list:
         if stage == 5:
             stage = 0
         
-        if counter > 5:
+        if counter >= 5:
             loss += 1
             counter = 0
         
             clear = 'no'
 
             # deciding on which method to go with
+            
             ult_method = max(loss_dict.items(), key=operator.itemgetter(1))[0]
+            
 
         
         if result == 'W':
@@ -189,11 +193,11 @@ for instrument in instruments_list:
                         counter += 0.25
                         stage +=1
 
-    # df = pd.DataFrame({'Dates': days, instrument : pair})
-    # df[instrument] = 1 
-    # print(df.head())
+    df = pd.DataFrame({'Dates': days, instrument : pair})
+    df[instrument] = 1 
+    print(df.head())
 
-    # dates_ml = pd.merge(dates_ml,df[['Dates',instrument]], on = 'Dates', how = 'left')
+    dates_ml = pd.merge(dates_ml,df[['Dates',instrument]], on = 'Dates', how = 'left')
 
 mystring = " ".join(map(str,methods))
 
@@ -211,7 +215,7 @@ print(loss)
 
 
 
-# dates_ml.to_csv('Results/method_losses' + str(methods) + '.csv')
+dates_ml.to_csv('Results/method_losses' + str(methods) + '.csv')
 
 
 
