@@ -110,7 +110,7 @@ for methods in methods_list:
         
         df = pd.DataFrame({'Dates': days, instrument : pair})
         df[instrument] = 1 
-        print(df.head())
+        
 
         dates_ml = pd.merge(dates_ml,df[['Dates',instrument]], on = 'Dates', how = 'left')
 
@@ -126,10 +126,10 @@ for methods in methods_list:
         lowest_loss = loss
         best_combo = mystring
         
-        print(days)
+        
 
 
-    print(dates_ml.head())
+    
                 
     print(methods)
     print(loss)
