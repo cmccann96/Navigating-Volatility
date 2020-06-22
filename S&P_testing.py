@@ -12,6 +12,7 @@ import re
 import sys
 
 from util import column_sum
+import datetime
 
 
 
@@ -36,6 +37,9 @@ factor_list = [1]
 n_list = [50,41,36,26,2]
 m_list = [100,90,80,75,70]
 pip_test_list = [17,19,21,23,25,27,29,31,33,35,37,39,41]
+monday_wins = 0
+monday_losses = 0
+chosen_day = 'Monday'
 
 try:
     del dates_ml
@@ -50,6 +54,7 @@ for instrument_name,pip in zip(INST_NAME, PIP):
 # for pip_test in pip_test_list:
     loss_counter = 0
     # pip = pip_test
+    # pip = 20
 # print(instrument_name)
 # tags = pd.read_csv(os.path.join(download_path, instrument_name + '_Candlestick_1_Hour_BID_10.01.2017-17.12.2019' + '.csv'))
     tags = pd.read_csv('historical_data/' + instrument_name + '_withsp500_historical.csv')
@@ -165,6 +170,9 @@ for instrument_name,pip in zip(INST_NAME, PIP):
         checker = 'no'
 
 
+        if (datetime.datetime.strptime(day['test'].str[:10].iloc[24], '%d.%m.%Y').strftime('%A')) == 'Monday':
+            continue
+
 
         # # CALCULATING THE MA
         # # n= 5            
@@ -243,14 +251,15 @@ for instrument_name,pip in zip(INST_NAME, PIP):
         
         average_day_mover = sum(movement_amounts) / len(movement_amounts)
         
-        proportion = 0.6
-        take_profit = proportion * average_day_mover
-        stop_loss = proportion * average_day_mover
+        # proportion = 0.6
+        # take_profit = proportion * average_day_mover
+        # stop_loss = proportion * average_day_mover
 
         take_profit = pip
         stop_loss = pip
         
         for k in day_iterator:
+            
 
             current_open = day['open'].iloc[k]
 
@@ -266,6 +275,7 @@ for instrument_name,pip in zip(INST_NAME, PIP):
             
             if counter >= 5:
                 loss_counter += 1
+                
                 loss = 1
                 counter = 0
                 days.append(tags['test'].str[:10].iloc[i])
@@ -288,77 +298,82 @@ for instrument_name,pip in zip(INST_NAME, PIP):
             #     counter += 0.2
             #if the order has been activated just go through standard checking now
             if checker == 'yes':
-                # if sp_action < 1000000:
-            
-                if action < 0:
+                if sp_action > 0:
                 
-                #stop loss tester
-                    if high > ((stop_loss))-spread:
-                        counter += 1
-                        
-                        
-                        break
-
-                    #take profit testor
-                    if low < take_profit *(-1) - spread:
-                        counter = 0
-                        
-                        
-                        break
-
-                
-                if action > 0:
-                
-
-                    #take profit tester
-                    if high > (take_profit) + spread:
-                        counter = 0
-                        
-                        
-                        break
-
+                    if action < 0:
+                    
                     #stop loss tester
-                    if low < ((stop_loss *(-1))) + spread:
-                        counter += 1
-                        
-                        
-                        break
+                        if high > ((stop_loss))-spread:
+                            counter += 1
+                            
+                            if (datetime.datetime.strptime(day['test'].str[:10].iloc[24], '%d.%m.%Y').strftime('%A')) == chosen_day:
+                                monday_losses += 1
+                            
+                            break
 
-                # else:
-
-                #     if action > 0:
-                
-                #     #stop loss tester
-                #         if high > ((stop_loss))-spread:
-                #             counter += 1
+                        #take profit testor
+                        if low < take_profit *(-1) - spread:
+                            counter = 0
                             
-                            
-                #             break
-
-                #         #take profit testor
-                #         if low < take_profit *(-1) - spread:
-                #             counter = 0
-                            
-                            
-                #             break
+                            if (datetime.datetime.strptime(day['test'].str[:10].iloc[24], '%d.%m.%Y').strftime('%A')) == chosen_day:
+                                monday_wins += 1
+                            break
 
                     
-                #     if action < 0:
+                    if action > 0:
+                    
+
+                        #take profit tester
+                        if high > (take_profit) + spread:
+                            counter = 0
+                            
+                            if (datetime.datetime.strptime(day['test'].str[:10].iloc[24], '%d.%m.%Y').strftime('%A')) == chosen_day:
+                                monday_wins += 1
+                            break
+
+                        #stop loss tester
+                        if low < ((stop_loss *(-1))) + spread:
+                            counter += 1
+                            
+                            if (datetime.datetime.strptime(day['test'].str[:10].iloc[24], '%d.%m.%Y').strftime('%A')) == chosen_day:
+                                monday_losses += 1
+                            break
+
+                else:
+
+                    if action > 0:
+                
+                    #stop loss tester
+                        if high > ((stop_loss))-spread:
+                            counter += 1
+                            
+                            
+                            break
+
+                        #take profit testor
+                        if low < take_profit *(-1) - spread:
+                            counter = 0
+                            
+                            
+                            break
+
+                    
+                    if action < 0:
                         
 
-                #         #take profit tester
-                #         if high > (take_profit) + spread:
-                #             counter = 0
+                        #take profit tester
+                        if high > (take_profit) + spread:
+                            counter = 0
                             
                             
-                #             break
+                            break
 
-                #         #stop loss tester
-                #         if low < ((stop_loss *(-1))) + spread:
-                #             counter += 1
+                        #stop loss tester
+                        if low < ((stop_loss *(-1))) + spread:
+                            counter += 1
                             
                                 
-                #             break
+                            break
                         
                 
                 
@@ -401,7 +416,8 @@ dates_ml.to_csv('Results/Sp500_testing.csv')
 
 print("the total losses for this strat is:  " + str(column_sum(dates_ml)))
 print("the number of inital misses is: " + str(number_of_misses))
-
+print("number of monday losses is :   " + str(monday_losses))
+print("number of monday wins is :   " + str(monday_wins))
 # print(number_of_misses)
 # print(total)
     
